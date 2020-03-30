@@ -1,0 +1,107 @@
+﻿@{
+	ViewBag.Title = "Mapa Principal";
+}
+
+@using DACWebApp.Models;
+
+@model List<CuestionarioModel>
+
+<div id="map" class="map"></div>
+
+
+<script type="text/javascript">
+
+	//Agrego mapa
+	var map = new ol.Map({
+		target: 'map',
+		layers: [
+			new ol.layer.Tile({
+				source: new ol.source.OSM()
+			})],
+		view: new ol.View({
+			center: ol.proj.fromLonLat([-68.2359, -42.3635]),
+			zoom: 4
+		})
+	});
+
+	var jsonFormulario =  @Html.Raw(Json.Encode(Model));;
+	var puntos = [];
+	var punto;
+
+	for (var i = 0; i < jsonFormulario.length; i++) {
+
+		var latitud = parseFloat(jsonFormulario[i].cue_latitud.replace(',', '.'));
+		var longitud = parseFloat(jsonFormulario[i].cue_longitud.replace(',', '.'));
+
+		if (latitud != 0 && longitud != 0) {
+
+			punto = new ol.Feature({
+				geometry: new ol.geom.Point(ol.proj.fromLonLat([longitud, latitud]))
+			});
+
+			puntos.push(punto);
+		}
+	};
+
+	//FUNCIONA OK [-58.5229927, -34.6227562]
+	//var punto1;
+	//for (i = 0; i < 50; i++) {
+	//	punto1 = new ol.Feature({
+	//		geometry: new ol.geom.Point(ol.proj.fromLonLat([-117, 38]))
+	//	});
+	//	puntos.push(punto1);
+	//}
+
+	//declaro el vector source
+	var vectorSource = new ol.source.Vector({
+		features: puntos
+	});
+
+	//create style for your feature...
+	var iconStyle = new ol.style.Style({
+		image: new ol.style.Icon(({
+			color: "#00ff1e",
+			crossOrigin: 'anonymous',
+			src: '/Content/Images/dot.png'
+		}))
+	});
+
+	//declaro el vector layer
+	var vectorLayer = new ol.layer.Vector({
+		source: vectorSource,
+		style: iconStyle
+	});
+
+	map.addLayer(vectorLayer);
+	//vectorLayer.getSource().changed();
+
+</script>
+
+@*<div class="jumbotron">
+		<h1>ASP.NET</h1>
+		<p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
+		<p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
+	</div>
+
+
+	<div class="row">
+		<div class="col-md-4">
+			<h2>Getting started</h2>
+			<p>
+				ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
+				enables a clean separation of concerns and gives you full control over markup
+				for enjoyable, agile development.
+			</p>
+			<p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
+		</div>
+		<div class="col-md-4">
+			<h2>Get more libraries</h2>
+			<p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
+			<p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
+		</div>
+		<div class="col-md-4">
+			<h2>Web Hosting</h2>
+			<p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
+			<p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
+		</div>
+	</div>*@
