@@ -41,6 +41,34 @@ namespace DACWebApp.Controllers
 			}
 		}
 
+		private async Task<MapLayersModel> GetCuestionarioLayer()
+		{
+			string urlRequest = "http://dacservicesdiagnosticapp.azurewebsites.net/api/ServiceFormulario";
+
+			try
+			{
+				//HttpClient httpClient = new HttpClient();
+
+				////Seteo time out al httpCient porque itris responde muy lento
+				//httpClient.Timeout = TimeSpan.FromMinutes(30);
+
+				//HttpResponseMessage httpResponseMessage = await httpClient.GetAsync(new Uri(urlRequest));
+				//string response = await httpResponseMessage.Content.ReadAsStringAsync();
+
+				//List<CuestionarioModel> jsonResponse = JsonConvert.DeserializeObject<List<CuestionarioModel>>(response);
+
+				////Filtro los elementos que tienen coordenadas nulas
+				//List<CuestionarioModel> salida = FiltrarNulos(jsonResponse);
+
+				//return View(salida);
+				return null;
+			}
+			catch (HttpRequestException reqx)
+			{
+				throw reqx;
+			}
+		}
+
 		/// <summary>
 		/// Filtro las coordenadas nulas y las que no esten dentro de la poryección utilizada
 		/// </summary>

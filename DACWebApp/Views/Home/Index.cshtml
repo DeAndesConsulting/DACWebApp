@@ -6,7 +6,88 @@
 
 @model List<CuestionarioModel>
 
-<div id="map" class="map"></div>
+<input type="checkbox" id="cbxLayerRed" onclick="myFunction()">
+<div id="map" class="map">
+	<div id="popup"></div>
+</div>
+
+
+<script type="text/javascript">
+
+	function myFunction() {
+		debugger;
+		var cbx = document.getElementById("cbxLayerRed");
+		var layer; 
+
+		map.getLayers().forEach(function (el) {
+			if (el.get('name') === 'layerRojo') {
+				layer = el;
+			}
+		});
+
+		if (cbx.checked == true) {
+			layer.setVisible(true);
+		} else {
+			layer.setVisible(false);
+		}
+	}
+
+
+	function dibujarLayer() {
+		//var jsonFormulario =  @Html.Raw(Json.Encode(Model));;
+		var puntosLayer = [];
+		var puntoLayer;
+
+		//for (var i = 0; i < jsonFormulario.length; i++) {
+
+		//	var latitud = parseFloat(jsonFormulario[i].cue_latitud.replace(',', '.'));
+		//	var longitud = parseFloat(jsonFormulario[i].cue_longitud.replace(',', '.'));
+
+		//	if (latitud != 0 && longitud != 0) {
+
+		//		punto = new ol.Feature({
+		//			geometry: new ol.geom.Point(ol.proj.fromLonLat([longitud, latitud]))
+		//		});
+
+		//		puntos.push(punto);
+		//	}
+		//};
+
+		//FUNCIONA OK [-58.5229927, -34.6227562]
+		//Atributo name es el mensaje que se mostrará en el popup
+		var punto1;
+		for (i = 0; i < 1; i++) {
+			punto1 = new ol.Feature({
+				geometry: new ol.geom.Point(ol.proj.fromLonLat([-64.2754, -31.1976])),
+				name: "pindor"
+			});
+			puntosLayer.push(punto1);
+		}
+
+		//declaro el vector source
+		var vectorSourceLayer = new ol.source.Vector({
+			features: puntosLayer
+		});
+
+		//create style for your feature...
+		var iconStyle = new ol.style.Style({
+			image: new ol.style.Icon(({
+				color: "#fd0e01",
+				crossOrigin: 'anonymous',
+				src: '/Content/Images/dot.png'
+			}))
+		});
+
+		//declaro el vector layer
+		var vectorLayerCustom = new ol.layer.Vector({
+			source: vectorSourceLayer,
+			style: iconStyle,
+			name: 'layerRojo'
+		});
+
+		map.addLayer(vectorLayerCustom);
+	}
+</script>
 
 
 <script type="text/javascript">
@@ -73,8 +154,56 @@
 	});
 
 	map.addLayer(vectorLayer);
-	//vectorLayer.getSource().changed();
 
+	//Dibujar layer rojo
+	dibujarLayer();
+
+	//******************
+	//bloques para popup
+	//******************
+	var element = document.getElementById('popup');
+
+	var popup = new ol.Overlay({
+		element: element,
+		positioning: 'bottom-center',
+		stopEvent: false,
+		offset: [0, -10]
+	});
+	map.addOverlay(popup);
+
+	// display popup on click
+	map.on('click', function (evt) {
+		var feature = map.forEachFeatureAtPixel(evt.pixel,
+			function (feature) {
+				return feature;
+			});
+		if (feature) {
+			var coordinates = feature.getGeometry().getCoordinates();
+			popup.setPosition(coordinates);
+			$(element).popover({
+				placement: 'top',
+				html: true,
+				content: feature.get('name')
+			});
+			$(element).popover('show');
+		} else {
+			$(element).popover('destroy');
+		}
+	});
+
+	// change mouse cursor when over marker
+	map.on('pointermove', function (e) {
+		if (e.dragging) {
+			$(element).popover('destroy');
+			return;
+		}
+		var pixel = map.getEventPixel(e.originalEvent);
+		var hit = map.hasFeatureAtPixel(pixel);
+		map.getViewport().style.cursor = hit ? 'pointer' : '';
+	});
+	//******************
+	//bloques para popup
+	//******************
 </script>
 
 @*<div class="jumbotron">
